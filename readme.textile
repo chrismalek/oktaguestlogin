@@ -1,19 +1,67 @@
-h1. OKTA Guest Login 
+h1. OKTA Guest Login Redirector
 
-This is an Application written in "Go":http://golang.org that interfaces with the "OKTA Session API":http://developer.okta.com/docs/api/rest/sessions.html in order to auto-login as a "guest" account.
+This is an Application written in "Go":http://golang.org that interfaces with the "OKTA Session API":http://developer.okta.com/docs/api/rest/sessions.html in order to auto-login as a "guest" account and redirect the user to some location.
+
+When you deploy this application there are two main URLS
+* http://your-host/guest?redirectUrl={encoded-url-that-is-the-final-destination}
+** This path is what is actually doing all the work.
+** Let's say you wanted to have the user end up on this URL: https://mysecretapplication.com/somepath?param1=foo.
+*** You could use this application to do the authentication using this full URL: http://your-host/guest?redirectUrl=https%3A%2F%2Fmysecretapplication.com%2Fsomepath%3Fparam1%3Dfoo
+* http://your-host/about
+** This is a helper page where you can generate the proper URL to embed in a link.
+
 
 h2. Use Case
 
 * You have a web application that is protected by Shibboleth with "Active Protection". Therefore all sessions require a session from the OKTA Idp.
 * Your SAML IdP is OKTA
 * You need to provide "guest" access to the system for guest access. 
-*** This was written for a PeopleSoft application that was running on Guest.  
-* The guest account is a native application user.
+*** This was written for a PeopleSoft application that was running on Guest access. However, there is nothing "PeopleSoft" specific here.
+* The guest account is a "native" application user that will be past to the back end application by Shibboleth.
+* The authentication provided here is providing nothing senstive and is open to the internet or your intranet without a login.
 
 
 h2. Configuration Steps
 
 * Create a new OKTA user that represents the target guest user.
 ** This should be an account that is basically anyone in the world can use.
+** For PeopleSoft, this account name should match your public user setup in the web profile.
+* clone the file "config/config.example.json" file to "config/config.json" and add needed parameters
 
 h2. Pseudo Code
+
+* On boot
+** Load config from json file
+** Configuration includes OKTA URL
+*** Portal Guest name
+*** Portal Guest password
+*** OKTA API Key
+*** Default URL to redirect user to if one not provided (optional)
+
+* http://your-host/guest?redirectUrl={redirectUrl} route
+** Invoke OKTA /api/v1/sessions?additionalFields=cookieToken with "guest" user name and password from configuration
+** Get cookie token returned in JSON
+** Check if URL query string has redirectUrl parameter which is and an encoded URL that you want the user to land on in the end as PORTAL_GUEST. If not use the default one from the configuration file.
+** 301 redirect user to the following URL structure: https://your-subdomain.okta.com/login/sessionCookieRedirect?token={cookieToken}&redirectUrl={redirectUrl}
+*** cookieToken and redirectURL are substituted
+*** We set several HTTP headers so caching is not performed by user’s browser or proxy servers.
+** From here on, the server script is done and it is handed off to OKTA
+** OKTA will log the person in using the one time cookieToken and set its own more persistant session cookies then 301 redirect the user’s browser back in the URL that was specified by our program and was
+
+* /about route
+** Server an about page that will server a generic page which will allow you to input a final destination URL and get back the properly formed URL to this application.
+** That URL can be viewed here: http://your-host/about
+** The about route looks like the following screenshot. The user wants to be redirected as PORTAL_GUEST to the “final url” shown. Once you click submit on the form the application will generate the proper URL that you would embed in a web page like “apply now” instead of the direct link to the portal. This is just a helper page so you do not have to fumble through figuring out the query string parameters and URL encoding.
+
+
+
+h2. Caveats
+
+Since this process will be using a guest account and will be creating an OKTA session for any user whom clicks on the link, the users will be able to go into OKTA as that user and change the password or other attributes. For example, "Adam" uses this application to get "guest" access which establishes an OKTA session in the his web browser. If Adam goes to the OKTA login page to enter his organization credentials, he would be automatically logged in as this guest user since he has a session cookie. This is obviously highly undesirable. 
+
+A potential work around is the following:
+* Contact OKTA support to generate an OKTA site which is used solely for the guest account. This would be something like https://blahblah-guest.okta.com.
+* Licensing is based on the number of users so this site would just add a few new users to the site: 
+** guest 
+** handful of administrators.
+* The blahblah-guest.okta.com site would be locked down so that information could not be change which can be done on the following setting screen which is site wide.
