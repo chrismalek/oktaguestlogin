@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>OKTA Guest Redirector - About Page</title>
+        <meta name="description" content="OKTA Guest Redirector">
+        <meta name="chris.malek@cedarhillsgroup.com" content="Cedar Hills Group, Inc">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.1.1/simplex/bootstrap.min.css">
+        <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="container">
+            <div class="starter-template">
+                <h1>OKTA Guest Redirector About Page</h1>
+                <form class="form-horizontal" action="/about" method="POST">
+                    <fieldset>
+                        <!-- Form Name -->
+                        <legend>Form Name</legend>
+                        <!-- Text input-->
+                        <div class="control-group">
+                            <label class="control-label" for="redirectUrl">Final URL</label>
+                            <div class="controls">
+                                <input id="redirectUrl" name="redirectUrl" class="form-control" type="text" placeholder="http://myapp.com">
+                                
+                            </div>
+                        </div>
+                        
+                    </fieldset>
+                    <hr>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+            <hr>
+            {{if .encodedURL}}
+                <h2>Your URL</h2>
+                <pre>{{.encodedURL}}</pre>
+            {{end}}
+            </div><!-- /.container -->
+        </body>
+    </html>

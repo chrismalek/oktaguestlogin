@@ -1,0 +1,1 @@
+web: okta.guest.logon

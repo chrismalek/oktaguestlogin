@@ -1,0 +1,19 @@
+h1. OKTA Guest Login 
+
+This is an Application written in "Go":http://golang.org that interfaces with the "OKTA Session API":http://developer.okta.com/docs/api/rest/sessions.html in order to auto-login as a "guest" account.
+
+h2. Use Case
+
+* You have a web application that is protected by Shibboleth with "Active Protection". Therefore all sessions require a session from the OKTA Idp.
+* Your SAML IdP is OKTA
+* You need to provide "guest" access to the system for guest access. 
+*** This was written for a PeopleSoft application that was running on Guest.  
+* The guest account is a native application user.
+
+
+h2. Configuration Steps
+
+* Create a new OKTA user that represents the target guest user.
+** This should be an account that is basically anyone in the world can use.
+
+h2. Pseudo Code

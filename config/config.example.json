@@ -1,0 +1,7 @@
+{
+    "DefaultTargetURL": "https://www.defaultURL if one not specified",
+    "GuestPassword": "houdini would know",
+    "GuestUserName": "PORTAL_GUEST",
+    "OktaAPIKey": "super secret okta api key ",
+    "OktaHost": "https://your-company-prefix.okta.com"
+}
